@@ -37,9 +37,6 @@ iptables -t filter -A FORWARD -s 192.168.100.5/32 -p tcp --sport 80 # tout hôte
 iptables -t filter -A FORWARD -d 192.168.100.5/32 -p tcp --dport 443 # tout hôte -> serveur web
 iptables -t filter -A FORWARD -s 192.168.100.5/32 -p tcp --sport 443 # tout hôte <- serveur web
 ```
-### Autoriser accès à un serveur FTP
-
-### Autoriser accès à un serveur DNS
 
 ### Autoriser accès à un serveur DHCP via agent relais
 L'agent relais transmettant les requêtes de diffusion MAC aux réseaux concernés, c'est donc des règles INPUT/OUTPUT et non FORWARD qu'il faut utiliser.
@@ -48,7 +45,6 @@ Différentes sources ne s'accordent pas à dire si OUTPUT et INPUT sont tous deu
 
 ```bash
 # DHCP: port 67 et 68
-iptables -t filter -A INPUT -d 192.168.100.6/32 -p tcp --dport 67:68 --sport 67:68 # tout hôte -> serveur web
 ```
 
 ## iptables-save
