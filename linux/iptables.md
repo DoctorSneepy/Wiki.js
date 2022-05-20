@@ -20,11 +20,52 @@ sudo apt install iptables
 L’outil fonctionne avec des listes de règles traitées dans l’ordre. Si une trame satisfait une règle, les suivantes ne seront pas traitées.
 
 # Commandes
-
-## iptables
+## Lister les règles
+```bash
+iptables -L # lister les règles de la table filter par défaut si aucune table sélectionnée
+iptables -t filter -L # lister les règles de la table filter
+```
+## Ajout de règles
 Commande principale de l'outil permettant d'ajouter une règle de filtrage ou nat/pat.
 
-Arguments: 
+### Utilisation de modules
+On peut utiliser des modules additionnels pour la correspondance des paquets.  
+Au cours d'une commande, il faut ajouter chaque module un à un avec `-m module_à_ajouter` ou `--match module_à_ajouter`.  
+Certains modules sont déjà présents et installés sur la machine et donc utilisable après ajout dans la commmande.
+```bash
+iptables -t filter -m multiport ... # Ajout du module multiport pour spécifier plusieurs ports qui ne sont pas dans une plage dans une commande
+```
+
+### Sélection de la table
+`-t` : spécifier la table visé. Valeurs possibles: **nat**, **filter**, **mangle**  
+*Optionnel: la table visée est définie par défaut en fonction de la règle. Si la règle est ambigue, il peut être utile de la préciser.*
+
+### Position de la règle dans la table de filtrage  
+`-A` : ajouter la/les règle(s) à la fin de la chaîne visée  
+OU   
+`-I 5` : ajouter la/les règle(s) à la position spécifiée, par défaut 1, 1 = au début de la chaîne
+
+### Ports
+`--dport 80` : Port de **destination** de la trame.  
+`--sport 1024` : Port **source**  de la trame
+
+Spécifier une plage de ports: `80:150` signifie du port 80 au port 150 inclus.
+
+#### Module multiport
+Le module multiport permet de spécifier plusieurs ports non contigus dans une commande.  
+**15 ports max** par commande. Espacer par des virgules.  
+`--dports 80,89,512` : Port de **destination** de la trame.   
+`--sports 58,60,158` : Port **source**  de la trame 
+`-p tcp` : tcp/udp, *définir le protcole active le module multiport implicitement*  
+`-m multiport` : activer le module directement
+
+
+Exemple:
+```bash
+iptables -A INPUT -p tcp -i eth0 -m multiport --dports 80,443,20,21 -j ACCEPT #accepter les ports 80 443 20 et 21
+```
+
+## Suppression de règles
 
 ## Usage commun
 ### Autoriser accès à un serveur web
@@ -46,6 +87,10 @@ Différentes sources ne s'accordent pas à dire si OUTPUT et INPUT sont tous deu
 ```bash
 # DHCP: port 67 et 68
 ```
+
+### Autoriser accès à un serveur FTP¨
+Il existe 2 modes de fonctionnement pour les serveurs FTP: actif / passif.
+D'après mes tests et recherches, le seul moyen que j'ai trouvé pour faire fonctionner le mode actif (port 20), est d'utiliser des règles INPUT / OUTPUT et de faire du NAT/PAT sur le routeur.
 
 ## iptables-save
 Permet de sauvegarder la configuration actuelle dans un fichier.
@@ -72,4 +117,5 @@ Arguments de la commande: identique à iptables-save mais dans le contexte de re
 Article détaillé sur la mise en place de filtrage dans un réseau d'entreprise: [AP SIO2 - DMZ Boulard](https://clementgentil.fr/ap-sio2-mise-en-place-de-dmz-dans-le-reseau-boulard/)
 
 # Sources
-http://www.devops-blog.net/iptables/iptables-rules-for-nat-with-ftp-active-passive
+http://www.devops-blog.net/iptables/iptables-rules-for-nat-with-ftp-active-passive  
+[Man d'Iptables (documentation officielle)](http://www.delafond.org/traducmanfr/man/man8/iptables.8.html)
