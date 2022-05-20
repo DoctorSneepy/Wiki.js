@@ -2,8 +2,8 @@
 title: Iptables
 description: Iptables sous Debian pour réaliser du filtrage, NAT/PAT
 published: 1
-date: 2022-05-09T06:06:30.085Z
-tags: linux, iptables, filtrage, nat, pat, nat/pat, debian
+date: 2022-05-20T07:39:45.131Z
+tags: debian, filtrage, iptables, linux, nat, nat/pat, pat
 editor: markdown
 dateCreated: 2022-05-09T06:06:22.461Z
 ---
@@ -67,5 +67,9 @@ iptables-restore < /chemin/vers/le/fichier.save #restaurer toutes les tables
 Arguments de la commande: identique à iptables-save mais dans le contexte de restauration.
 
 
+
 # Exemple
 Article détaillé sur la mise en place de filtrage dans un réseau d'entreprise: [AP SIO2 - DMZ Boulard](https://clementgentil.fr/ap-sio2-mise-en-place-de-dmz-dans-le-reseau-boulard/)
+
+# Sources
+http://www.devops-blog.net/iptables/iptables-rules-for-nat-with-ftp-active-passive
