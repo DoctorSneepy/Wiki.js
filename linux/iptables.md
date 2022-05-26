@@ -25,6 +25,36 @@ L’outil fonctionne avec des listes de règles traitées dans l’ordre. Si une
 iptables -L # lister les règles de la table filter par défaut si aucune table sélectionnée
 iptables -t filter -L # lister les règles de la table filter
 ```
+
+# Politique de filtrage
+Définir la politique de filtrage pour les champs `INPUT`, `OUTPUT` et `FORWARD`  
+Une politique est le comportement par défaut à adopter pour toutes trames ne correspondant pas aux règles.
+
+```bash
+iptables -P INPUT DROP
+```
+
+## Valeurs possibles:
+
+`ACCEPT` : Accepter toutes les trames sauf règles  
+`DROP`:  Refuser toutes les trames sauf règles, sans informer la source  
+`REJECT` :  Refuser toutes les trames sauf règles, en informer la source  
+
+Les 3 tables ne sont pas systématiquement de la même politique. *On peut par exemple avoir une table FORWARD en ACCEPT et les tables INPUT et OUTPUT en DROP.*
+
+## Exemples
+```bash
+# TOUT ACCEPTER PAR DEFAUT 
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+
+# TOUT REFUSER PAR DEFAUT
+sudo iptables -P INPUT DROP
+sudo iptables -P OUTPUT DROP
+sudo iptables -P FORWARD DROP
+```
+
 # Ajout de règles
 Commande principale de l'outil permettant d'ajouter une règle de filtrage ou nat/pat.
 
@@ -45,17 +75,25 @@ iptables -t filter -m multiport ... # Ajout du module multiport pour spécifier 
 OU   
 `-I 5` : ajouter la/les règle(s) à la position spécifiée, par défaut 1, 1 = au début de la chaîne
 
+## Protocole
+Définir le(s) protocole(s) auxquelles s'appliquent la règle: `-p tcp`  
+Valeurs possibles: `tcp, udp, udplite, icmp, icmpv6, esp, ah, sctp, mh, all`
+
+Par défaut tous : 0 / all
+Spécifier ! avant signifie l'inverse. !tcp veut dire tout sauf tcp.
+
 ## Ports
+Les ports ne sont utilisés qu'avec les protocoles TCP et UDP.  
 `--dport 80` : Port de **destination** de la trame.  
-`--sport 1024` : Port **source**  de la trame
+`--sport 1024` : Port **source**  de la trame 
 
 Spécifier une plage de ports: `80:150` signifie du port 80 au port 150 inclus.
 
 ### Module multiport
 Le module multiport permet de spécifier plusieurs ports non contigus dans une commande.  
 **15 ports max** par commande. Espacer par des virgules.  
-`--dports 80,89,512` : Port de **destination** de la trame.   
-`--sports 58,60,158` : Port **source**  de la trame 
+`--dports 80,89,512` : Port de **destination** de la trame.  
+`--sports 58,60,158` : Port **source**  de la trame  
 `-p tcp` : tcp/udp, *définir le protcole active le module multiport implicitement*  
 `-m multiport` : activer le module directement
 
@@ -64,11 +102,30 @@ Exemple:
 iptables -A INPUT -p tcp -i eth0 -m multiport --dports 80,443,20,21 -j ACCEPT #accepter les ports 80 443 20 et 21
 ```
 
+## IP
+`-d 192.168.1.0/2` : Adresse/Réseau IP de **destination** de la trame.  
+`-s 10.0.0.7/32` : Adresse/Réseau IP **source**  de la trame
+
+Si pas de masque précisé, par défaut /32 = IP précise.  
+Si pas d'adresse IP source et / ou destination précisé, par défaut toutes.
+
 # Suppression de règles
 ```bash
 iptables -D
 ```
 # Usage commun
+## Autoriser requête ping
+```bash
+    # Pare-feu = 192.168.36.253 pour l'exemple
+# Ping le parefeu
+iptables -t filter -A INPUT -d 192.168.36.253 -p icmp -j ACCEPT # tout hôte -> pare-feu
+iptables -t filter -A OUTPUT -s 192.168.36.253 -p icmp -j ACCEPT # tout hôte <- pare-feu
+
+# Ping toute machine derrière le pare-feu sur le réseau 192.168.36.0/24
+iptables -t filter -A FORWARD -d 192.168.36.0/24 -p icmp -j ACCEPT
+iptables -t filter -A FORWARD -s 192.168.36.0/24 -p icmp -j ACCEPT 
+```
+
 ## Autoriser accès à un serveur web
 ```bash
 # HTTP: port 80
