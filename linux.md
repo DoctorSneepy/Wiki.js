@@ -2,7 +2,7 @@
 title: Linux - Table des Matières
 description: Table des matières de la partie dédiée à Linux
 published: 1
-date: 2022-05-29T22:21:23.180Z
+date: 2022-05-29T22:22:00.019Z
 tags: linux
 editor: markdown
 dateCreated: 2022-05-29T22:21:23.180Z
@@ -11,5 +11,5 @@ dateCreated: 2022-05-29T22:21:23.180Z
 # Basique
 
 # Avancé
-## [Sysprep](/windows/sysprep)
-## [WakeOnLan](/windows/WakeOnLan)
+[Sysprep](/windows/sysprep)
+[WakeOnLan](/windows/WakeOnLan)
